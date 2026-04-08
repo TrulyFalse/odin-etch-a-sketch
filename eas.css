@@ -1,0 +1,16 @@
+html {
+    box-sizing: border-box;
+}
+*, *:before, *:after{
+    box-sizing: inherit;
+}
+
+#canvas {
+    box-sizing: content-box;
+    display: flex;
+    flex-wrap: wrap;
+    width: 500px;
+    height: 500px;
+
+    border: 1px solid black;
+}
