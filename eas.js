@@ -1,9 +1,20 @@
-let mouseheld = false;
+// globals
+const NUM_OF_COLORS = 256 * 256 * 256;
 const canvasDiv = document.querySelector('#canvas');
 
+let mouseheld = false;
+let rainbowMode = false;
 
+
+// DRY code
 function clearCanvas(){
     canvasDiv.innerHTML = '';
+}
+
+function generateRandomColorHexStr(){
+    let decRandomColor = +((Math.random() * NUM_OF_COLORS).toFixed(0));
+    let hexRandomColor = "#" + decRandomColor.toString(16).padStart(6);
+    return hexRandomColor;
 }
 
 function createCanvas(size){
@@ -20,12 +31,10 @@ function createCanvas(size){
             squareDiv.addEventListener("mousedown", (e) => {
                 e.preventDefault();
                 mouseheld = true;
-                squareDiv.style.backgroundColor = "black";
+                squareDiv.style.backgroundColor = rainbowMode ? generateRandomColorHexStr() : "black";
             });
             squareDiv.addEventListener("mouseenter", () => {
-                if(mouseheld){
-                    squareDiv.style.backgroundColor = "black";
-                }
+                if(mouseheld) squareDiv.style.backgroundColor = rainbowMode ? generateRandomColorHexStr() : "black";
             });
 
             canvasDiv.appendChild(squareDiv);
@@ -39,6 +48,10 @@ html.addEventListener("mouseup", () => {
 });
 
 
+
+
+
+// Button event-handlers
 const newCanvasBtn = document.querySelector("#new-canvas-btn");
 newCanvasBtn.addEventListener("click", () => {
     let size;
@@ -46,12 +59,25 @@ newCanvasBtn.addEventListener("click", () => {
         size = prompt("Enter new canvas's square grid length (1 to 100):");
         if(size === null) return; // doing nothing to canvas if cancel button was pressed.
         size = +size; //convert string to number
-
     }while(Number.isNaN(size) || !Number.isInteger(size) || size <= 0 || size > 100)
     
     clearCanvas();
     createCanvas(size);
 });
 
+const rainbowBtn = document.querySelector("#rainbow-btn");
+rainbowBtn.addEventListener("click", () => {
+    if(rainbowMode){
+        rainbowMode = false;
+        rainbowBtn.textContent = "Enable Rainbow Mode";
+    }else{
+        rainbowMode = true;
+        rainbowBtn.textContent = "Disable Rainbow Mode";
+    }
+})
 
+
+
+
+// initialize canvas
 createCanvas(16);
