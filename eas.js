@@ -1,8 +1,5 @@
 // globals
-const NUM_OF_COLORS = 256;
 const canvasDiv = document.querySelector('#canvas');
-
-let mouseheld = false;
 let rainbowMode = false;
 let lightBrushMode = false;
 
@@ -13,6 +10,8 @@ function clearCanvas(){
 }
 
 function parseStringToRGBA(RGBA_Str){
+    if(RGBA_Str === "") return {red: 0, green: 0, blue: 0, alpha: 0};
+    
     // "rgba(0, 0, 0, 0.03)" -> "0, 0, 0, 0.03" -> ["0","0","0","0.03"] -> [0,0,0,0.03]
     let arr = RGBA_Str.slice(5, -1).split(',').map((str) => +str);
     let RGBA = {
@@ -37,12 +36,22 @@ function increaseAlpha(colorStr){
     return `rgba(${RGBA.red}, ${RGBA.green}, ${RGBA.blue}, ${RGBA.alpha})`
 }
 
+function decreaseAlpha(colorStr){
+    let RGBA = parseStringToRGBA(colorStr);
+    if(RGBA.alpha !== 0.0) RGBA.alpha -= 0.1;
+    return `rgba(${RGBA.red}, ${RGBA.green}, ${RGBA.blue}, ${RGBA.alpha})`
+}
+
 function fillCell(squareDiv){
-    let currentColor = (squareDiv.style.backgroundColor === "") ? {red: 0, green: 0, blue: 0, alpha: 0} : parseStringToRGBA(squareDiv.style.backgroundColor);
+    let currentColor = parseStringToRGBA(squareDiv.style.backgroundColor);
     let newColor = rainbowMode? generateRandomColorRGBA(currentColor.alpha) : `rgba(0,0,0,${currentColor.alpha})`;
     newColor = lightBrushMode? increaseAlpha(newColor) : newColor.slice(0, newColor.lastIndexOf(",")) + ", 1)";
     squareDiv.style.backgroundColor = newColor;
     return;
+}
+
+function eraseCell(squareDiv){
+    squareDiv.style.backgroundColor = lightBrushMode ? decreaseAlpha(squareDiv.style.backgroundColor) : "";
 }
 
 function createCanvas(size){
@@ -58,21 +67,19 @@ function createCanvas(size){
             
             squareDiv.addEventListener("mousedown", (e) => {
                 e.preventDefault();
-                mouseheld = true;
-                fillCell(squareDiv);
+                if(e.button === 0) fillCell(squareDiv);
+                else if(e.button === 2) eraseCell(squareDiv);
             });
-            squareDiv.addEventListener("mouseenter", () => {
-                if(mouseheld) fillCell(squareDiv);
+            squareDiv.addEventListener("mouseenter", (e) => {
+                if(e.buttons === 1) fillCell(squareDiv);
+                else if(e.buttons === 2) eraseCell(squareDiv);
             });
+            squareDiv.addEventListener("contextmenu", (e) => e.preventDefault());
+            
             canvasDiv.appendChild(squareDiv);
         }
     }
 }
-
-const html = document.querySelector('html');
-html.addEventListener("mouseup", () => {
-    mouseheld = false;
-});
 
 
 
